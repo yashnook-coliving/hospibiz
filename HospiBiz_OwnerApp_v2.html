@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0F2D5E">
+<title>HospiBiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0F2D5E;
+  --blue: #1A56A0;
+  --blue-light: #2D7DD2;
+  --teal: #0E7490;
+  --green: #16A34A;
+  --green-light: #DCFCE7;
+  --red: #DC2626;
+  --red-light: #FEE2E2;
+  --amber: #D97706;
+  --amber-light: #FEF3C7;
+  --white: #FFFFFF;
+  --gray-50: #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-400: #94A3B8;
+  --gray-600: #475569;
+  --gray-800: #1E293B;
+  --card-shadow: 0 2px 12px rgba(15,45,94,0.10);
+  --card-shadow-lg: 0 8px 32px rgba(15,45,94,0.16);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-800);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  padding-bottom: 80px;
+}
+
+h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--navy);
+  padding: 16px 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; color:#fff; letter-spacing:-0.5px; }
+.topbar-logo span { color: #60A5FA; }
+.topbar-date { font-size:12px; color:rgba(255,255,255,0.6); }
+.topbar-sync { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.1); border:none; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+/* ── BOTTOM NAV ── */
+.bottomnav {
+  position: fixed;
+  bottom: 0; left:50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 8px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  gap: 3px;
+  transition: all 0.2s;
+}
+.nav-tab .nav-icon { font-size: 20px; transition: transform 0.2s; }
+.nav-tab .nav-label { font-size: 10px; font-family:'DM Sans',sans-serif; color: var(--gray-400); font-weight:500; }
+.nav-tab.active .nav-label { color: var(--blue); font-weight:600; }
+.nav-tab.active .nav-icon { transform: translateY(-2px); }
+
+/* ── SCREENS ── */
+.screen { display:none; padding: 16px; animation: fadeIn 0.25s ease; }
+.screen.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── CARDS ── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 14px;
+}
+.card-title {
+  font-family:'Syne',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color: var(--gray-400);
+  text-transform:uppercase;
+  letter-spacing:0.8px;
+  margin-bottom:10px;
+}
+
+/* ── SUMMARY STRIP ── */
+.summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.summary-card {
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  box-shadow: var(--card-shadow);
+}
+.summary-card.highlight { background: var(--navy); }
+.summary-card .s-label { font-size:11px; color:var(--gray-400); font-weight:500; margin-bottom:4px; }
+.summary-card.highlight .s-label { color:rgba(255,255,255,0.6); }
+.summary-card .s-value { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:var(--navy); }
+.summary-card.highlight .s-value { color:#fff; }
+.summary-card .s-sub { font-size:11px; color:var(--gray-400); margin-top:2px; }
+.summary-card.highlight .s-sub { color:rgba(255,255,255,0.5); }
+.pnl-positive { color: var(--green) !important; }
+.pnl-negative { color: var(--red) !important; }
+
+/* ── DUE CARDS ── */
+.due-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 10px;
+  border-left: 4px solid var(--red);
+  transition: transform 0.15s;
+}
+.due-card:active { transform: scale(0.98); }
+.due-card.partial { border-left-color: var(--amber); }
+.due-card.paid { border-left-color: var(--green); }
+.due-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.due-card-name { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; }
+.due-card-room { font-size:12px; color:var(--gray-400); margin-top:2px; }
+.due-card-total { text-align:right; }
+.due-card-amount { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; color:var(--red); }
+.due-card.partial .due-card-amount { color: var(--amber); }
+.due-card.paid .due-card-amount { color: var(--green); }
+.due-card-month { font-size:11px; color:var(--gray-400); }
+.component-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--gray-100); font-size:13px; }
+.component-row:last-child { border-bottom:none; }
+.comp-name { color: var(--gray-600); }
+.comp-status { font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; }
+.comp-status.due { background:var(--red-light); color:var(--red); }
+.comp-status.paid { background:var(--green-light); color:var(--green); }
+.comp-status.partial { background:var(--amber-light); color:var(--amber); }
+.record-btn {
+  width:100%; margin-top:12px; padding:10px;
+  background:var(--navy); color:#fff;
+  border:none; border-radius:var(--radius-sm);
+  font-family:'Syne',sans-serif; font-weight:700; font-size:13px;
+  cursor:pointer; letter-spacing:0.3px;
+  transition: background 0.2s;
+}
+.record-btn:active { background: var(--blue); }
+
+/* ── FILTER CHIPS ── */
+.filter-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:14px; scrollbar-width:none; }
+.filter-row::-webkit-scrollbar { display:none; }
+.chip {
+  flex-shrink:0; padding:6px 14px;
+  border-radius:20px; border:1.5px solid var(--gray-200);
+  background:var(--white); color:var(--gray-600);
+  font-size:12px; font-weight:600; cursor:pointer;
+  transition: all 0.15s;
+}
+.chip.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+/* ── SECTION HEADER ── */
+.section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.section-title { font-family:'Syne',sans-serif; font-weight:700; font-size:16px; }
+.section-link { font-size:12px; color:var(--blue); font-weight:600; cursor:pointer; }
+
+/* ── OCCUPANCY STRIP ── */
+.occupancy-strip {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  color: #fff;
+}
+.occ-row { display:flex; justify-content:space-between; margin-bottom:6px; }
+.occ-prop { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; }
+.occ-count { font-size:13px; opacity:0.8; }
+.occ-bar { height:6px; background:rgba(255,255,255,0.2); border-radius:3px; margin-top:4px; overflow:hidden; }
+.occ-fill { height:100%; background:#60A5FA; border-radius:3px; transition:width 0.6s ease; }
+
+/* ── TREND CHART ── */
+.chart-container { height:160px; position:relative; margin-top:8px; }
+.chart-bars { display:flex; align-items:flex-end; height:130px; gap:6px; padding:0 4px; }
+.chart-bar-group { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.bar-wrap { width:100%; display:flex; gap:2px; align-items:flex-end; height:120px; }
+.bar-income { border-radius:4px 4px 0 0; background:var(--blue); flex:1; min-height:4px; transition:height 0.5s ease; }
+.bar-expense { border-radius:4px 4px 0 0; background:#FCA5A5; flex:1; min-height:4px; transition:height 0.5s ease; }
+.bar-label { font-size:10px; color:var(--gray-400); margin-top:4px; }
+.chart-legend { display:flex; gap:14px; margin-top:8px; }
+.legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--gray-600); }
+.legend-dot { width:8px; height:8px; border-radius:2px; }
+
+/* ── FORMS ── */
+.form-group { margin-bottom:14px; }
+.form-label { font-size:12px; font-weight:600; color:var(--gray-600); margin-bottom:5px; display:block; }
+.form-input, .form-select, .form-textarea {
+  width:100%; padding:11px 14px;
+  border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-sm);
+  font-family:'DM Sans',sans-serif; font-size:14px;
+  color:var(--gray-800); background:var(--white);
+  outline:none; transition:border-color 0.15s;
+  appearance:none; -webkit-appearance:none;
+}
+.form-input:focus, .form-select:focus { border-color:var(--blue); }
+.form-textarea { resize:none; height:80px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.submit-btn {
+  width:100%; padding:14px;
+  background:var(--navy); color:#fff;
+  border:none; border-radius:var(--radius-sm);
+  font-family:'Syne',sans-serif; font-weight:700; font-size:15px;
+  cursor:pointer; margin-top:6px;
+  transition: background 0.2s;
+}
+.submit-btn:active { background:var(--blue); }
+.submit-btn:disabled { background:var(--gray-400); cursor:not-allowed; }
+
+/* ── EXPENSE TABS ── */
+.tab-row { display:flex; background:var(--gray-100); border-radius:var(--radius-sm); padding:3px; margin-bottom:16px; gap:3px; }
+.tab-btn { flex:1; padding:8px; border:none; background:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; color:var(--gray-400); cursor:pointer; transition:all 0.15s; }
+.tab-btn.active { background:var(--white); color:var(--navy); box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+
+/* ── EXPENSE CATEGORY LIST ── */
+.cat-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 0; border-bottom:1px solid var(--gray-100); cursor:pointer;
+}
+.cat-row:last-child { border-bottom:none; }
+.cat-info { display:flex; align-items:center; gap:10px; }
+.cat-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.cat-name { font-weight:600; font-size:14px; }
+.cat-sub { font-size:11px; color:var(--gray-400); margin-top:1px; }
+.cat-amount { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; color:var(--navy); }
+
+/* ── P&L ── */
+.pnl-row { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--gray-100); font-size:14px; }
+.pnl-row:last-child { border-bottom:none; }
+.pnl-row.total { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; padding-top:14px; }
+.pnl-row.total .pnl-val { font-size:18px; }
+.pnl-label { color:var(--gray-600); }
+.pnl-val { font-weight:600; color:var(--gray-800); }
+.pnl-val.green { color:var(--green); }
+.pnl-val.red { color:var(--red); }
+.pnl-val.muted { color:var(--gray-400); font-size:12px; }
+
+/* ── VACANCY MAP ── */
+.vacancy-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.vacancy-prop-title { font-family:'Syne',sans-serif; font-weight:800; font-size:15px; }
+.vacancy-legend { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+.vleg { display:flex; align-items:center; gap:4px; font-size:11px; color:var(--gray-600); }
+.vleg-dot { width:10px; height:10px; border-radius:3px; }
+.room-group { margin-bottom:12px; }
+.room-label { font-size:12px; font-weight:700; color:var(--gray-600); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+.beds-grid { display:flex; flex-wrap:wrap; gap:6px; }
+.bed-chip {
+  padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700;
+  cursor:pointer; transition:transform 0.15s;
+  font-family:'Syne',sans-serif;
+}
+.bed-chip:active { transform:scale(0.93); }
+.bed-chip.occupied { background:var(--navy); color:#fff; }
+.bed-chip.vacant { background:var(--green-light); color:var(--green); border:1.5px solid #86EFAC; }
+.bed-chip.warden { background:var(--gray-100); color:var(--gray-400); border:1.5px solid var(--gray-200); }
+.bed-chip.staff { background:#EDE9FE; color:#7C3AED; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.5);
+  z-index:200; display:none; align-items:flex-end;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--white); width:100%; max-width:480px; margin:0 auto;
+  border-radius:24px 24px 0 0; padding:24px 20px 32px;
+  max-height:90vh; overflow-y:auto;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle { width:36px; height:4px; background:var(--gray-200); border-radius:2px; margin:0 auto 20px; }
+.modal-title { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; margin-bottom:18px; }
+.modal-close { float:right; background:none; border:none; font-size:20px; cursor:pointer; color:var(--gray-400); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+  background:var(--gray-800); color:#fff;
+  padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600;
+  z-index:300; opacity:0; transition:opacity 0.3s;
+  white-space:nowrap; pointer-events:none;
+}
+.toast.show { opacity:1; }
+
+/* ── LOADING ── */
+.loading { text-align:center; padding:40px; color:var(--gray-400); font-size:14px; }
+.spinner { width:32px; height:32px; border:3px solid var(--gray-200); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── EMPTY STATE ── */
+.empty { text-align:center; padding:32px 20px; color:var(--gray-400); }
+.empty-icon { font-size:40px; margin-bottom:10px; }
+.empty-text { font-size:14px; }
+
+/* ── COMPONENT CHECKBOXES IN PAYMENT MODAL ── */
+.comp-check { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--gray-100); }
+.comp-check-left { display:flex; align-items:center; gap:10px; }
+.comp-check input[type=checkbox] { width:18px; height:18px; accent-color:var(--navy); cursor:pointer; }
+.comp-check-name { font-size:14px; font-weight:500; }
+.comp-check-due { font-size:12px; color:var(--gray-400); }
+.comp-amount-input { width:100px; padding:6px 10px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:13px; text-align:right; }
+
+/* ── BADGE ── */
+.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; }
+.badge-green { background:var(--green-light); color:var(--green); }
+.badge-red { background:var(--red-light); color:var(--red); }
+.badge-amber { background:var(--amber-light); color:var(--amber); }
+.badge-blue { background:#DBEAFE; color:var(--blue); }
+
+/* ── PAGE TITLE ── */
+.page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:22px; margin-bottom:16px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">Hospi<span>Biz</span></div>
+  <div class="topbar-date" id="topDate"></div>
+  <button class="topbar-sync" onclick="refreshData()" title="Sync">↻</button>
+</div>
+
+<!-- SCREENS -->
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div id="homeContent"><div class="loading"><div class="spinner"></div>Loading dashboard...</div></div>
+</div>
+
+<!-- DUES -->
+<div class="screen" id="screen-dues">
+  <div class="page-title">Pending Dues</div>
+  <div class="filter-row">
+    <div class="chip active" onclick="filterDues('all',this)">All</div>
+    <div class="chip" onclick="filterDues('D26',this)">D26</div>
+    <div class="chip" onclick="filterDues('D25',this)">D25</div>
+    <div class="chip" onclick="filterDues('overdue',this)">Overdue</div>
+  </div>
+  <div id="duesContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+</div>
+
+<!-- EXPENSES -->
+<div class="screen" id="screen-expenses">
+  <div class="page-title">Expenses</div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchExpTab('log',this)">Log Expense</button>
+    <button class="tab-btn" onclick="switchExpTab('dashboard',this)">Dashboard</button>
+  </div>
+  <div id="expLogTab">
+    <div class="card">
+      <form id="expenseForm" onsubmit="submitExpense(event)">
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input class="form-input" id="expDesc" placeholder="e.g. Paid to Shubham Gautam" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Amount (₹)</label>
+            <input class="form-input" id="expAmt" type="number" placeholder="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input class="form-input" id="expDate" type="date" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="expCat" onchange="updateSubCat()">
+              <option value="">Select</option>
+              <option>Property Lease</option>
+              <option>Electricity</option>
+              <option>Wifi</option>
+              <option>Staff Salary</option>
+              <option>Housekeeping</option>
+              <option>Waste Disposal</option>
+              <option>Maintenance</option>
+              <option>Materials</option>
+              <option>Marketing</option>
+              <option>Kitchen - Raw Material</option>
+              <option>Kitchen - Asset</option>
+              <option>Catering</option>
+              <option>Assets & Equipment</option>
+              <option>Legal</option>
+              <option>Rental Furniture</option>
+              <option>Logistics</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sub-Category</label>
+            <select class="form-select" id="expSubCat">
+              <option value="">Select</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Property</label>
+            <select class="form-select" id="expProp">
+              <option>D26</option>
+              <option>D25</option>
+              <option>Both</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Suspense?</label>
+            <select class="form-select" id="expSuspense">
+              <option value="No">No</option>
+              <option value="Yes">Yes - classify later</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes (optional)</label>
+          <textarea class="form-textarea" id="expNotes" placeholder="Any additional details..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="expSubmitBtn">Save Expense</button>
+      </form>
+    </div>
+  </div>
+  <div id="expDashTab" style="display:none">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchPeriod('mtd',this)">MTD</button>
+      <button class="tab-btn" onclick="switchPeriod('ytd',this)">YTD</button>
+    </div>
+    <div id="expDashContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  </div>
+</div>
+
+<!-- P&L -->
+<div class="screen" id="screen-pnl">
+  <div class="page-title">P & L</div>
+  <div id="pnlContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+</div>
+
+<!-- PROPERTY -->
+<div class="screen" id="screen-property">
+  <div class="page-title">Property</div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchPropTab('vacancy',this)">Vacancy Map</button>
+    <button class="tab-btn" onclick="switchPropTab('moveout',this)">Move Out</button>
+    <button class="tab-btn" onclick="switchPropTab('income',this)">Log Income</button>
+  </div>
+  <div id="vacancyTab"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  <div id="moveoutTab" style="display:none">
+    <div class="card">
+      <form id="moveoutForm" onsubmit="submitMoveOut(event)">
+        <div class="form-group">
+          <label class="form-label">Select Resident</label>
+          <select class="form-select" id="moResident" onchange="loadMoveOutResident()">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+        <div id="moDetails" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Move-Out Date</label>
+              <input class="form-input" id="moDate" type="date" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Final Elec Reading</label>
+              <input class="form-input" id="moElec" type="number" placeholder="Units">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Security Deposit Held (₹)</label>
+              <input class="form-input" id="moDeposit" type="number" readonly style="background:var(--gray-50)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Outstanding Balance (₹)</label>
+              <input class="form-input" id="moOutstanding" type="number" readonly style="background:var(--gray-50)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deductions from Deposit (₹)</label>
+            <input class="form-input" id="moDeductions" type="number" placeholder="0" value="0" oninput="calcRefund()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deduction Notes</label>
+            <input class="form-input" id="moDeductNotes" placeholder="e.g. Damage to room, pending dues">
+          </div>
+          <div class="card" style="background:var(--green-light);box-shadow:none;margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-weight:600;font-size:14px;">Refund Amount</span>
+              <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--green)" id="moRefundAmt">₹0</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-textarea" id="moNotes" placeholder="Any final remarks..."></textarea>
+          </div>
+          <button type="submit" class="submit-btn" style="background:var(--red)">Confirm Move Out</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="incomeTab" style="display:none">
+    <div class="card">
+      <form id="incomeForm" onsubmit="submitIncome(event)">
+        <div class="form-group">
+          <label class="form-label">Income Type</label>
+          <select class="form-select" id="incType">
+            <option>F&B Sales</option>
+            <option>AC Rental Income</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Amount (₹)</label>
+            <input class="form-input" id="incAmt" type="number" placeholder="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input class="form-input" id="incDate" type="date" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes (optional)</label>
+          <input class="form-input" id="incNotes" placeholder="Optional notes">
+        </div>
+        <button type="submit" class="submit-btn">Save Income</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottomnav">
+  <button class="nav-tab active" onclick="switchScreen('home',this)">
+    <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+  </button>
+  <button class="nav-tab" onclick="switchScreen('dues',this)">
+    <span class="nav-icon">💰</span><span class="nav-label">Dues</span>
+  </button>
+  <button class="nav-tab" onclick="switchScreen('expenses',this)">
+    <span class="nav-icon">📋</span><span class="nav-label">Expenses</span>
+  </button>
+  <button class="nav-tab" onclick="switchScreen('pnl',this)">
+    <span class="nav-icon">📊</span><span class="nav-label">P&L</span>
+  </button>
+  <button class="nav-tab" onclick="switchScreen('property',this)">
+    <span class="nav-icon">🏢</span><span class="nav-label">Property</span>
+  </button>
+</nav>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
+    <div class="modal-title" id="payModalTitle">Record Payment</div>
+    <div id="payModalContent"></div>
+  </div>
+</div>
+
+<!-- BED INFO MODAL -->
+<div class="modal-overlay" id="bedModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('bedModal')">✕</button>
+    <div class="modal-title" id="bedModalTitle">Bed Info</div>
+    <div id="bedModalContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════
+const API = "https://script.google.com/macros/s/AKfycbz-Rbg8xl2IXvnDas9FRWmPebKn7aecPybludeXb9i_K2rlN3DA8nQQ65S8Hcp52AiFZQ/exec";
+
+// ── State ──
+let state = {
+  residents: [], payments: [], expenses: [],
+  roomMaster: [], incomeOther: [], monthlyBills: [],
+  loaded: false
+};
+let currentDuesFilter = 'all';
+let currentExpPeriod = 'mtd';
+
+// ── Sub-category map ──
+const subCats = {
+  "Maintenance": ["Electrical","Plumbing","Painting","Civil","Wood Work","General"],
+  "Materials": ["Electrical","Plumbing","Painting","Wood Work","Other"],
+  "Marketing": ["Printing","Subscription","Social Media","Signage","Commissions","Logistics"],
+  "Assets & Equipment": ["Appliance","Furniture","Linen","Locks","Mattress","Electronics","Other"],
+  "Kitchen - Raw Material": ["Vegetables","Grocery","Dairy","Gas","Packaging","Other"],
+  "Kitchen - Asset": ["Utensils","Equipment","Storage","Other"],
+  "Other": ["Petty Cash","Suspense","Debt","Refund","Other"]
+};
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  setDateDisplay();
+  setDefaultDates();
+  loadAllData();
+});
+
+function setDateDisplay() {
+  const d = new Date();
+  document.getElementById('topDate').textContent =
+    d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  ['expDate','incDate','moDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = today;
+  });
+}
+
+// ════════════════════════════════════════
+// DATA LOADING
+// ════════════════════════════════════════
+
+// iPhone Safari compatible fetch using script tag (JSONP-style)
+function apiCall(action) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + action + '_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      document.body.removeChild(script);
+      // Fallback to regular fetch
+      fetch(`${API}?action=${action}`)
+        .then(r => r.json())
+        .then(j => resolve(j.success ? j.data : []))
+        .catch(() => resolve([]));
+    }, 5000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(document.body.contains(script)) document.body.removeChild(script);
+      resolve(data.success ? data.data : []);
+    };
+
+    script.src = `${API}?action=${action}&callback=${cbName}`;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      // Fallback to regular fetch on script error
+      fetch(`${API}?action=${action}`)
+        .then(r => r.json())
+        .then(j => resolve(j.success ? j.data : []))
+        .catch(() => resolve([]));
+    };
+    document.body.appendChild(script);
+  });
+}
+
+async function apiPost(action, data, extra = '') {
+  const url = `${API}?action=${action}&data=${encodeURIComponent(JSON.stringify(data))}${extra}`;
+  try {
+    const res = await fetch(url, { method: 'GET', mode: 'no-cors' });
+    return true;
+  } catch(e) {
+    // no-cors won't return readable response but request goes through
+    return true;
+  }
+}
+
+async function loadAllData() {
+  try {
+    const [residents, payments, expenses, roomMaster, incomeOther] = await Promise.all([
+      apiCall('getResidents'),
+      apiCall('getPayments'),
+      apiCall('getExpenses'),
+      apiCall('getRoomMaster'),
+      apiCall('getIncomeOther')
+    ]);
+    state = { residents, payments, expenses, roomMaster, incomeOther, loaded: true };
+    renderHome();
+    renderDues();
+    renderVacancy();
+    renderPnL();
+    populateResidentDropdowns();
+  } catch(e) {
+    document.getElementById('homeContent').innerHTML =
+      `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Could not connect to Google Sheets.<br>Check internet and try again.</div></div>`;
+  }
+}
+
+async function refreshData() {
+  showToast('Syncing...');
+  await loadAllData();
+  showToast('✅ Synced!');
+}
+
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+function fmt(n) {
+  if(!n && n!==0) return '—';
+  return '₹' + Number(n).toLocaleString('en-IN');
+}
+
+function nowMonth() { return new Date().getMonth() + 1; }
+function nowYear()  { return new Date().getFullYear(); }
+
+function parseAmt(v) {
+  if(!v) return 0;
+  return parseFloat(String(v).replace(/[₹,]/g,'')) || 0;
+}
+
+function getMonthName(m) {
+  return ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
+}
+
+// Get total paid for a resident+component+month+year
+function getPaid(residentId, component, month, year) {
+  return state.payments
+    .filter(p => p.ResidentID == residentId && p.Component == component &&
+                 Number(p.BillingMonth) == month && Number(p.BillingYear) == year)
+    .reduce((s,p) => s + parseAmt(p.AmountPaid), 0);
+}
+
+// Get all payments for a resident in a month
+function getAllPaid(residentId, month, year) {
+  return state.payments
+    .filter(p => p.ResidentID == residentId &&
+                 Number(p.BillingMonth) == month && Number(p.BillingYear) == year)
+    .reduce((s,p) => s + parseAmt(p.AmountPaid), 0);
+}
+
+function getResidentComponents(r) {
+  const comps = [];
+  const bedRent = parseAmt(r.BedRent);
+  const foodAmt = parseAmt(r.FoodAmt);
+  const acAmt   = parseAmt(r.ACCoolerAmt);
+  const elecAmt = parseAmt(r.ElecAmt);
+  if(bedRent > 0) comps.push({ name:'Bed Rent',     due: bedRent });
+  if(foodAmt > 0) comps.push({ name:'Food Package', due: foodAmt });
+  if(acAmt   > 0) comps.push({ name:'AC/Cooler',    due: acAmt });
+  if(elecAmt > 0) comps.push({ name:'Electricity',  due: elecAmt });
+  return comps;
+}
+
+function getResidentOutstanding(r, month, year) {
+  const comps = getResidentComponents(r);
+  let total = 0;
+  comps.forEach(c => {
+    const paid = getPaid(r.ResidentID, c.name, month, year);
+    total += Math.max(0, c.due - paid);
+  });
+  return total;
+}
+
+// ════════════════════════════════════════
+// HOME SCREEN
+// ════════════════════════════════════════
+function renderHome() {
+  const m = nowMonth(), y = nowYear();
+  const active = state.residents.filter(r => r.Status === 'Active');
+
+  // Total billed this month
+  const totalBilled = active.reduce((s,r) => s + parseAmt(r.TotalMonthlyBill), 0);
+
+  // Total collected this month
+  const totalCollected = state.payments
+    .filter(p => Number(p.BillingMonth)==m && Number(p.BillingYear)==y)
+    .reduce((s,p) => s + parseAmt(p.AmountPaid), 0);
+
+  // Total outstanding
+  const totalOutstanding = active.reduce((s,r) => s + getResidentOutstanding(r,m,y), 0);
+
+  // MTD expenses
+  const mtdExpenses = state.expenses
+    .filter(e => Number(e.Month)==m && Number(e.Year)==y)
+    .reduce((s,e) => s + parseAmt(e.Amount), 0);
+
+  // Other income this month
+  const otherIncome = state.incomeOther
+    .filter(i => Number(i.Month)==m && Number(i.Year)==y)
+    .reduce((s,i) => s + parseAmt(i.Amount), 0);
+
+  const netPnL = totalCollected + otherIncome - mtdExpenses;
+
+  // Occupancy
+  const d26beds = state.roomMaster.filter(b => b.Property==='D26' && b.Status !== 'Warden');
+  const d25beds = state.roomMaster.filter(b => b.Property==='D25' && b.Status !== 'Warden');
+  const d26occ  = d26beds.filter(b => b.Status==='Occupied').length;
+  const d25occ  = d25beds.filter(b => b.Status==='Occupied').length;
+
+  // Due residents
+  const dueResidents = active.filter(r => getResidentOutstanding(r,m,y) > 0);
+
+  // Trend data — last 6 months
+  const trendData = [];
+  for(let i=5; i>=0; i--) {
+    const d = new Date(y, m-1-i, 1);
+    const tm = d.getMonth()+1, ty = d.getFullYear();
+    const inc = state.payments
+      .filter(p => Number(p.BillingMonth)==tm && Number(p.BillingYear)==ty)
+      .reduce((s,p) => s + parseAmt(p.AmountPaid), 0);
+    const exp = state.expenses
+      .filter(e => Number(e.Month)==tm && Number(e.Year)==ty)
+      .reduce((s,e) => s + parseAmt(e.Amount), 0);
+    trendData.push({ label: getMonthName(tm), income: inc, expense: exp });
+  }
+  const maxVal = Math.max(...trendData.map(d => Math.max(d.income, d.expense)), 1);
+
+  document.getElementById('homeContent').innerHTML = `
+    <div class="summary-grid">
+      <div class="summary-card highlight">
+        <div class="s-label">Collected — ${getMonthName(m)}</div>
+        <div class="s-value">${fmt(totalCollected)}</div>
+        <div class="s-sub">of ${fmt(totalBilled)} billed</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Outstanding</div>
+        <div class="s-value" style="color:var(--red)">${fmt(totalOutstanding)}</div>
+        <div class="s-sub">${dueResidents.length} residents pending</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Expenses — MTD</div>
+        <div class="s-value">${fmt(mtdExpenses)}</div>
+        <div class="s-sub">This month so far</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Net P&L</div>
+        <div class="s-value ${netPnL>=0?'pnl-positive':'pnl-negative'}">${fmt(Math.abs(netPnL))}</div>
+        <div class="s-sub">${netPnL>=0?'Profit':'Loss'} this month</div>
+      </div>
+    </div>
+
+    ${dueResidents.length > 0 ? `
+    <div class="section-header">
+      <div class="section-title">⚠️ Dues — ${getMonthName(m)} ${y}</div>
+      <div class="section-link" onclick="switchScreen('dues',document.querySelectorAll('.nav-tab')[1])">See all</div>
+    </div>
+    ${dueResidents.slice(0,3).map(r => renderDueCardHTML(r,m,y,true)).join('')}
+    ` : `<div class="card" style="text-align:center;color:var(--green);padding:20px;">
+      <div style="font-size:28px">✅</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;margin-top:6px">All dues cleared for ${getMonthName(m)}!</div>
+    </div>`}
+
+    <div class="occupancy-strip">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px;font-size:14px;">Occupancy</div>
+      <div class="occ-row">
+        <span class="occ-prop">D26</span>
+        <span class="occ-count">${d26occ} / ${d26beds.length} beds occupied</span>
+      </div>
+      <div class="occ-bar"><div class="occ-fill" style="width:${d26beds.length?Math.round(d26occ/d26beds.length*100):0}%"></div></div>
+      <div style="margin-top:10px">
+        <div class="occ-row">
+          <span class="occ-prop">D25</span>
+          <span class="occ-count">${d25occ} / ${d25beds.length} beds occupied</span>
+        </div>
+        <div class="occ-bar"><div class="occ-fill" style="width:${d25beds.length?Math.round(d25occ/d25beds.length*100):0}%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Income vs Expenses — Last 6 Months</div>
+      <div class="chart-container">
+        <div class="chart-bars">
+          ${trendData.map(d => `
+            <div class="chart-bar-group">
+              <div class="bar-wrap">
+                <div class="bar-income" style="height:${Math.round(d.income/maxVal*110)}px" title="Income ${fmt(d.income)}"></div>
+                <div class="bar-expense" style="height:${Math.round(d.expense/maxVal*110)}px" title="Expense ${fmt(d.expense)}"></div>
+              </div>
+              <div class="bar-label">${d.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Income</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FCA5A5"></div>Expenses</div>
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════
+// DUES SCREEN
+// ════════════════════════════════════════
+function renderDues() {
+  const m = nowMonth(), y = nowYear();
+  const active = state.residents.filter(r => r.Status === 'Active');
+  let filtered = active;
+  if(currentDuesFilter === 'D26') filtered = active.filter(r => r.Property==='D26');
+  if(currentDuesFilter === 'D25') filtered = active.filter(r => r.Property==='D25');
+
+  const withDues = filtered
+    .map(r => ({ r, outstanding: getResidentOutstanding(r,m,y) }))
+    .filter(x => currentDuesFilter === 'overdue' ? x.outstanding > 0 : x.outstanding > 0)
+    .sort((a,b) => b.outstanding - a.outstanding);
+
+  if(withDues.length === 0) {
+    document.getElementById('duesContent').innerHTML =
+      `<div class="empty"><div class="empty-icon">🎉</div><div class="empty-text">No pending dues!</div></div>`;
+    return;
+  }
+
+  document.getElementById('duesContent').innerHTML =
+    withDues.map(x => renderDueCardHTML(x.r, m, y, false)).join('');
+}
+
+function renderDueCardHTML(r, m, y, compact) {
+  const comps = getResidentComponents(r);
+  const outstanding = getResidentOutstanding(r, m, y);
+  const totalPaid = getAllPaid(r.ResidentID, m, y);
+  const totalDue = parseAmt(r.TotalMonthlyBill);
+  let cardClass = 'due';
+  if(totalPaid > 0 && outstanding > 0) cardClass = 'partial';
+  if(outstanding === 0) cardClass = 'paid';
+
+  const compsHTML = compact ? '' : `
+    ${comps.map(c => {
+      const paid = getPaid(r.ResidentID, c.name, m, y);
+      const remaining = Math.max(0, c.due - paid);
+      let status = remaining > 0 ? 'due' : 'paid';
+      if(paid > 0 && remaining > 0) status = 'partial';
+      return `<div class="component-row">
+        <span class="comp-name">${c.name}</span>
+        <span class="comp-status ${status}">${status === 'due' ? fmt(remaining) + ' DUE' : status === 'paid' ? 'PAID' : fmt(remaining) + ' LEFT'}</span>
+      </div>`;
+    }).join('')}
+  `;
+
+  return `
+    <div class="due-card ${cardClass}" onclick="openPaymentModal('${r.ResidentID}')">
+      <div class="due-card-header">
+        <div>
+          <div class="due-card-name">${r.Name}</div>
+          <div class="due-card-room">${r.Property} · Room ${r.Room} · Bed ${r.Beds}</div>
+        </div>
+        <div class="due-card-total">
+          <div class="due-card-amount">${fmt(outstanding)}</div>
+          <div class="due-card-month">${getMonthName(m)} ${y}</div>
+        </div>
+      </div>
+      ${compsHTML}
+      ${!compact ? `<button class="record-btn" onclick="event.stopPropagation();openPaymentModal('${r.ResidentID}')">Record Payment</button>` : ''}
+    </div>
+  `;
+}
+
+function filterDues(filter, el) {
+  currentDuesFilter = filter;
+  document.querySelectorAll('.filter-row .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderDues();
+}
+
+// ════════════════════════════════════════
+// PAYMENT MODAL
+// ════════════════════════════════════════
+function openPaymentModal(residentId) {
+  const r = state.residents.find(x => x.ResidentID == residentId);
+  if(!r) return;
+  const m = nowMonth(), y = nowYear();
+  const comps = getResidentComponents(r);
+  const today = new Date().toISOString().split('T')[0];
+
+  document.getElementById('payModalTitle').textContent = `${r.Name} — ${getMonthName(m)} ${y}`;
+  document.getElementById('payModalContent').innerHTML = `
+    <div style="margin-bottom:14px;padding:12px;background:var(--gray-50);border-radius:10px;">
+      <div style="font-size:12px;color:var(--gray-400);">Resident</div>
+      <div style="font-weight:600;">${r.Property} · Room ${r.Room} · Bed ${r.Beds}</div>
+    </div>
+    <div style="margin-bottom:14px;">
+      ${comps.map(c => {
+        const paid = getPaid(residentId, c.name, m, y);
+        const remaining = Math.max(0, c.due - paid);
+        if(remaining === 0) return `
+          <div class="comp-check">
+            <div class="comp-check-left">
+              <input type="checkbox" disabled>
+              <div><div class="comp-check-name" style="color:var(--gray-400)">${c.name}</div>
+              <div class="comp-check-due" style="color:var(--green)">✅ Fully Paid</div></div>
+            </div>
+          </div>`;
+        return `
+          <div class="comp-check">
+            <div class="comp-check-left">
+              <input type="checkbox" id="chk_${c.name.replace(/\s/g,'_')}" checked onchange="updatePayTotal()">
+              <div><div class="comp-check-name">${c.name}</div>
+              <div class="comp-check-due">Due: ${fmt(remaining)}</div></div>
+            </div>
+            <input class="comp-amount-input" type="number" id="amt_${c.name.replace(/\s/g,'_')}"
+              value="${remaining}" oninput="updatePayTotal()" data-max="${remaining}">
+          </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:2px solid var(--gray-200);margin-bottom:14px;">
+      <span style="font-family:'Syne',sans-serif;font-weight:700;">Total Being Paid</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--navy)" id="payTotal">₹0</span>
+    </div>
+    <div class="form-row" style="margin-bottom:14px;">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Payment Mode</label>
+        <select class="form-select" id="payMode">
+          <option>Cash</option><option>UPI</option><option>Bank Transfer</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="payDate" type="date" value="${today}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="payNotes" placeholder="Any notes...">
+    </div>
+    <button class="submit-btn" onclick="submitPayment('${residentId}')">Save Payment</button>
+  `;
+  updatePayTotal();
+  document.getElementById('paymentModal').classList.add('open');
+}
+
+function updatePayTotal() {
+  let total = 0;
+  document.querySelectorAll('.comp-amount-input').forEach(inp => {
+    const chkId = inp.id.replace('amt_','chk_');
+    const chk = document.getElementById(chkId);
+    if(chk && chk.checked) total += parseFloat(inp.value)||0;
+  });
+  document.getElementById('payTotal').textContent = fmt(total);
+}
+
+async function submitPayment(residentId) {
+  const r = state.residents.find(x => x.ResidentID == residentId);
+  const m = nowMonth(), y = nowYear();
+  const mode = document.getElementById('payMode').value;
+  const date = document.getElementById('payDate').value;
+  const notes = document.getElementById('payNotes').value;
+  const comps = getResidentComponents(r);
+  let saved = 0;
+
+  for(const c of comps) {
+    const key = c.name.replace(/\s/g,'_');
+    const chk = document.getElementById('chk_'+key);
+    const amt = document.getElementById('amt_'+key);
+    if(chk && chk.checked && amt && parseFloat(amt.value) > 0) {
+      const payload = {
+        PaymentID: 'PAY_'+Date.now()+'_'+saved,
+        ResidentID: residentId, ResidentName: r.Name,
+        Property: r.Property, Room: r.Room,
+        BillingMonth: m, BillingYear: y,
+        Component: c.name, AmountPaid: parseFloat(amt.value),
+        PaymentMode: mode, DateReceived: date,
+        LoggedBy: 'Owner', Notes: notes
+      };
+      await apiPost('addPayment', payload);
+      state.payments.push(payload);
+      saved++;
+    }
+  }
+
+  closeModal('paymentModal');
+  showToast(`✅ Payment saved for ${r.Name}`);
+  renderHome(); renderDues();
+}
+
+// ════════════════════════════════════════
+// EXPENSES
+// ════════════════════════════════════════
+function updateSubCat() {
+  const cat = document.getElementById('expCat').value;
+  const sub = document.getElementById('expSubCat');
+  const options = subCats[cat] || [];
+  sub.innerHTML = `<option value="">Select</option>` +
+    options.map(o => `<option>${o}</option>`).join('');
+}
+
+async function submitExpense(e) {
+  e.preventDefault();
+  const btn = document.getElementById('expSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  const date = document.getElementById('expDate').value;
+  const [y, m] = date.split('-');
+  const payload = {
+    ExpenseID: 'EXP_'+Date.now(),
+    Date: date, Month: parseInt(m), Year: parseInt(y),
+    Description: document.getElementById('expDesc').value,
+    Amount: parseFloat(document.getElementById('expAmt').value),
+    Category: document.getElementById('expCat').value,
+    SubCategory: document.getElementById('expSubCat').value,
+    Property: document.getElementById('expProp').value,
+    Suspense: document.getElementById('expSuspense').value,
+    Notes: document.getElementById('expNotes').value
+  };
+
+  await apiPost('addExpense', payload);
+  state.expenses.push(payload);
+
+  document.getElementById('expenseForm').reset();
+  setDefaultDates();
+  btn.disabled = false; btn.textContent = 'Save Expense';
+  showToast('✅ Expense saved!');
+  renderHome();
+}
+
+function switchExpTab(tab, el) {
+  document.querySelectorAll('#screen-expenses .tab-row:first-of-type .tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('expLogTab').style.display = tab==='log' ? 'block' : 'none';
+  document.getElementById('expDashTab').style.display = tab==='dashboard' ? 'block' : 'none';
+  if(tab==='dashboard') renderExpDashboard();
+}
+
+function switchPeriod(period, el) {
+  currentExpPeriod = period;
+  document.querySelectorAll('#expDashTab .tab-row .tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderExpDashboard();
+}
+
+function renderExpDashboard() {
+  const m = nowMonth(), y = nowYear();
+  const filtered = state.expenses.filter(e => {
+    if(currentExpPeriod === 'mtd') return Number(e.Month)==m && Number(e.Year)==y;
+    // YTD: Dec 2025 onwards
+    const ey = Number(e.Year), em = Number(e.Month);
+    if(ey < 2025) return false;
+    if(ey === 2025 && em < 12) return false;
+    return true;
+  });
+
+  const byCategory = {};
+  filtered.forEach(e => {
+    const cat = e.Category || 'Other';
+    byCategory[cat] = (byCategory[cat]||0) + parseAmt(e.Amount);
+  });
+
+  const sorted = Object.entries(byCategory).sort((a,b)=>b[1]-a[1]);
+  const total = sorted.reduce((s,x)=>s+x[1],0);
+
+  const catIcons = {
+    'Property Lease':'🏠','Electricity':'⚡','Wifi':'📶','Staff Salary':'👤',
+    'Housekeeping':'🧹','Waste Disposal':'🗑️','Maintenance':'🔧','Materials':'🪛',
+    'Marketing':'📢','Kitchen - Raw Material':'🥘','Kitchen - Asset':'🍳',
+    'Catering':'🍽️','Assets & Equipment':'📦','Legal':'⚖️','Rental Furniture':'🪑',
+    'Logistics':'🚚','Other':'💼'
+  };
+  const catColors = {
+    'Property Lease':'#DBEAFE','Electricity':'#FEF3C7','Wifi':'#E0E7FF',
+    'Staff Salary':'#FCE7F3','Housekeeping':'#ECFDF5','Maintenance':'#FEE2E2',
+    'Marketing':'#FEF9C3','Kitchen - Raw Material':'#FFEDD5','Other':'#F3F4F6'
+  };
+
+  document.getElementById('expDashContent').innerHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">${currentExpPeriod==='mtd' ? getMonthName(m)+' '+y+' Total' : 'Dec 2025 – Present'}</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--navy)">${fmt(total)}</div>
+    </div>
+    <div class="card">
+      ${sorted.map(([cat, amt]) => `
+        <div class="cat-row">
+          <div class="cat-info">
+            <div class="cat-icon" style="background:${catColors[cat]||'#F3F4F6'}">${catIcons[cat]||'💼'}</div>
+            <div>
+              <div class="cat-name">${cat}</div>
+              <div class="cat-sub">${Math.round(amt/total*100)}% of total</div>
+            </div>
+          </div>
+          <div class="cat-amount">${fmt(amt)}</div>
+        </div>
+      `).join('')}
+    </div>
+    ${state.expenses.filter(e=>e.Suspense==='Yes').length > 0 ? `
+    <div class="card" style="border-left:4px solid var(--amber)">
+      <div class="card-title" style="color:var(--amber)">⚠️ Suspense Items</div>
+      ${state.expenses.filter(e=>e.Suspense==='Yes').map(e=>`
+        <div class="pnl-row">
+          <span class="pnl-label">${e.Description}</span>
+          <span class="pnl-val">${fmt(e.Amount)}</span>
+        </div>
+      `).join('')}
+    </div>` : ''}
+  `;
+}
+
+// ════════════════════════════════════════
+// P&L
+// ════════════════════════════════════════
+function renderPnL() {
+  const m = nowMonth(), y = nowYear();
+  const active = state.residents.filter(r => r.Status === 'Active');
+
+  const grossBilled = active.reduce((s,r) => s + parseAmt(r.TotalMonthlyBill), 0);
+  const rentCollected = state.payments
+    .filter(p => Number(p.BillingMonth)==m && Number(p.BillingYear)==y)
+    .reduce((s,p) => s + parseAmt(p.AmountPaid), 0);
+  const outstanding = grossBilled - rentCollected;
+  const fbRevenue = state.incomeOther
+    .filter(i => Number(i.Month)==m && Number(i.Year)==y && i.IncomeType==='F&B Sales')
+    .reduce((s,i) => s + parseAmt(i.Amount), 0);
+  const otherIncome = state.incomeOther
+    .filter(i => Number(i.Month)==m && Number(i.Year)==y && i.IncomeType!=='F&B Sales')
+    .reduce((s,i) => s + parseAmt(i.Amount), 0);
+  const totalIncome = rentCollected + fbRevenue + otherIncome;
+  const totalExpenses = state.expenses
+    .filter(e => Number(e.Month)==m && Number(e.Year)==y)
+    .reduce((s,e) => s + parseAmt(e.Amount), 0);
+  const netPnL = totalIncome - totalExpenses;
+  const margin = totalIncome > 0 ? Math.round(netPnL/totalIncome*100) : 0;
+
+  // 6-month trend
+  const trend = [];
+  for(let i=5;i>=0;i--) {
+    const d = new Date(y, m-1-i, 1);
+    const tm = d.getMonth()+1, ty = d.getFullYear();
+    const inc = state.payments.filter(p=>Number(p.BillingMonth)==tm&&Number(p.BillingYear)==ty).reduce((s,p)=>s+parseAmt(p.AmountPaid),0)
+      + state.incomeOther.filter(i=>Number(i.Month)==tm&&Number(i.Year)==ty).reduce((s,i)=>s+parseAmt(i.Amount),0);
+    const exp = state.expenses.filter(e=>Number(e.Month)==tm&&Number(e.Year)==ty).reduce((s,e)=>s+parseAmt(e.Amount),0);
+    trend.push({ label:getMonthName(tm), income:inc, expense:exp, net:inc-exp });
+  }
+  const maxVal = Math.max(...trend.map(d=>Math.max(d.income,d.expense)),1);
+
+  document.getElementById('pnlContent').innerHTML = `
+    <div class="card">
+      <div class="card-title">Accommodation — ${getMonthName(m)} ${y}</div>
+      <div class="pnl-row"><span class="pnl-label">Gross Rent Billed</span><span class="pnl-val">${fmt(grossBilled)}</span></div>
+      <div class="pnl-row"><span class="pnl-label">Rent Collected</span><span class="pnl-val green">${fmt(rentCollected)}</span></div>
+      <div class="pnl-row"><span class="pnl-label">Outstanding Rent</span><span class="pnl-val ${outstanding>0?'red':''}">${fmt(outstanding)}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">F&B & Other Income — ${getMonthName(m)} ${y}</div>
+      <div class="pnl-row"><span class="pnl-label">F&B Sales</span><span class="pnl-val green">${fmt(fbRevenue)}</span></div>
+      <div class="pnl-row"><span class="pnl-label">Other Income</span><span class="pnl-val green">${fmt(otherIncome)}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Summary — ${getMonthName(m)} ${y}</div>
+      <div class="pnl-row"><span class="pnl-label">Total Income</span><span class="pnl-val green">${fmt(totalIncome)}</span></div>
+      <div class="pnl-row"><span class="pnl-label">Total Expenses</span><span class="pnl-val red">${fmt(totalExpenses)}</span></div>
+      <div class="pnl-row total">
+        <span class="pnl-label">Net ${netPnL>=0?'Profit':'Loss'}</span>
+        <span class="pnl-val ${netPnL>=0?'green':'red'}">${fmt(Math.abs(netPnL))}</span>
+      </div>
+      <div class="pnl-row"><span class="pnl-label">Profit Margin</span><span class="pnl-val ${margin>=0?'green':'red'}">${margin}%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">6-Month Trend</div>
+      <div class="chart-container">
+        <div class="chart-bars">
+          ${trend.map(d=>`
+            <div class="chart-bar-group">
+              <div class="bar-wrap">
+                <div class="bar-income" style="height:${Math.round(d.income/maxVal*110)}px"></div>
+                <div class="bar-expense" style="height:${Math.round(d.expense/maxVal*110)}px"></div>
+              </div>
+              <div class="bar-label">${d.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Income</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FCA5A5"></div>Expenses</div>
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════
+// VACANCY MAP
+// ════════════════════════════════════════
+function renderVacancy() {
+  const props = ['D26','D25'];
+  let html = `
+    <div class="vacancy-legend">
+      <div class="vleg"><div class="vleg-dot" style="background:var(--navy)"></div>Occupied</div>
+      <div class="vleg"><div class="vleg-dot" style="background:#86EFAC"></div>Vacant</div>
+      <div class="vleg"><div class="vleg-dot" style="background:var(--gray-200)"></div>Warden/Staff</div>
+    </div>
+  `;
+
+  props.forEach(prop => {
+    const beds = state.roomMaster.filter(b => b.Property === prop);
+    const rooms = [...new Set(beds.map(b => b.Room))].sort((a,b)=>Number(a)-Number(b));
+    const occ = beds.filter(b=>b.Status==='Occupied').length;
+    const total = beds.filter(b=>b.Status!=='Warden').length;
+
+    html += `<div class="card">
+      <div class="vacancy-header">
+        <div class="vacancy-prop-title">${prop}</div>
+        <div class="badge badge-blue">${occ}/${total} occupied</div>
+      </div>
+      ${rooms.map(room => {
+        const roomBeds = beds.filter(b=>b.Room===room);
+        const roomType = roomBeds[0]?.RoomType || '';
+        return `<div class="room-group">
+          <div class="room-label">Room ${room} · ${roomType}</div>
+          <div class="beds-grid">
+            ${roomBeds.map(b => {
+              let cls = 'vacant';
+              if(b.Status==='Occupied') cls='occupied';
+              if(b.Status==='Warden') cls='warden';
+              if(b.Status==='Staff' || b.ResidentName==='Helper') cls='staff';
+              const label = `${room}${b.Bed}`;
+              return `<div class="bed-chip ${cls}" onclick="showBedInfo('${prop}','${room}','${b.Bed}')">${label}</div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+
+  document.getElementById('vacancyTab').innerHTML = html;
+}
+
+function showBedInfo(prop, room, bed) {
+  const b = state.roomMaster.find(x=>x.Property===prop&&x.Room===room&&x.Bed===bed);
+  if(!b) return;
+  const r = b.ResidentID ? state.residents.find(x=>x.ResidentID===b.ResidentID) : null;
+  const m = nowMonth(), y = nowYear();
+  const outstanding = r ? getResidentOutstanding(r,m,y) : 0;
+
+  document.getElementById('bedModalTitle').textContent = `${prop} · Room ${room}${bed}`;
+  document.getElementById('bedModalContent').innerHTML = `
+    <div style="margin-bottom:12px">
+      <span class="badge ${b.Status==='Occupied'?'badge-blue':b.Status==='Vacant'?'badge-green':'badge-amber'}">${b.Status}</span>
+      <span style="margin-left:8px;font-size:13px;color:var(--gray-400)">${b.RoomType}</span>
+    </div>
+    ${b.Status==='Occupied' && r ? `
+      <div class="pnl-row"><span class="pnl-label">Resident</span><span class="pnl-val">${r.Name}</span></div>
+      <div class="pnl-row"><span class="pnl-label">Monthly Bill</span><span class="pnl-val">${fmt(r.TotalMonthlyBill)}</span></div>
+      <div class="pnl-row"><span class="pnl-label">Food Plan</span><span class="pnl-val">${r.FoodPackage||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-label">AC/Cooler</span><span class="pnl-val">${r.ACCooler||'None'}</span></div>
+      <div class="pnl-row"><span class="pnl-label">Outstanding</span>
+        <span class="pnl-val ${outstanding>0?'red':'green'}">${outstanding>0?fmt(outstanding)+' DUE':'All Clear'}</span>
+      </div>
+      ${r.Notes ? `<div style="margin-top:10px;padding:10px;background:var(--gray-50);border-radius:8px;font-size:13px;color:var(--gray-600)">${r.Notes}</div>` : ''}
+      <button class="record-btn" style="margin-top:14px" onclick="closeModal('bedModal');openPaymentModal('${r.ResidentID}')">Record Payment</button>
+    ` : `<div class="empty" style="padding:20px 0"><div class="empty-icon">🛏️</div><div class="empty-text">Bed is vacant</div></div>`}
+    ${b.Notes && !r ? `<div style="font-size:13px;color:var(--gray-400);margin-top:8px">${b.Notes}</div>` : ''}
+  `;
+  document.getElementById('bedModal').classList.add('open');
+}
+
+// ════════════════════════════════════════
+// MOVE OUT
+// ════════════════════════════════════════
+function populateResidentDropdowns() {
+  const active = state.residents.filter(r => r.Status==='Active');
+  const sel = document.getElementById('moResident');
+  if(sel) {
+    sel.innerHTML = `<option value="">-- Select --</option>` +
+      active.map(r => `<option value="${r.ResidentID}">${r.Name} · ${r.Property} Room ${r.Room}</option>`).join('');
+  }
+}
+
+function loadMoveOutResident() {
+  const id = document.getElementById('moResident').value;
+  if(!id) { document.getElementById('moDetails').style.display='none'; return; }
+  const r = state.residents.find(x=>x.ResidentID===id);
+  document.getElementById('moDeposit').value = r.SecurityDeposit || 0;
+  document.getElementById('moOutstanding').value = getResidentOutstanding(r, nowMonth(), nowYear());
+  document.getElementById('moDeductions').value = 0;
+  calcRefund();
+  document.getElementById('moDetails').style.display='block';
+}
+
+function calcRefund() {
+  const deposit = parseFloat(document.getElementById('moDeposit').value)||0;
+  const deductions = parseFloat(document.getElementById('moDeductions').value)||0;
+  const outstanding = parseFloat(document.getElementById('moOutstanding').value)||0;
+  const refund = Math.max(0, deposit - deductions - outstanding);
+  document.getElementById('moRefundAmt').textContent = fmt(refund);
+}
+
+async function submitMoveOut(e) {
+  e.preventDefault();
+  const id = document.getElementById('moResident').value;
+  const r = state.residents.find(x=>x.ResidentID===id);
+  const deposit = parseFloat(document.getElementById('moDeposit').value)||0;
+  const deductions = parseFloat(document.getElementById('moDeductions').value)||0;
+  const outstanding = parseFloat(document.getElementById('moOutstanding').value)||0;
+  const refund = Math.max(0, deposit - deductions - outstanding);
+
+  const payload = {
+    MoveOutID: 'MO_'+Date.now(),
+    ResidentID: id, ResidentName: r.Name,
+    Property: r.Property, Room: r.Room, Beds: r.Beds,
+    MoveOutDate: document.getElementById('moDate').value,
+    FinalElecReading: document.getElementById('moElec').value,
+    OutstandingBalance: outstanding,
+    DepositHeld: deposit,
+    Deductions: deductions,
+    DeductionNotes: document.getElementById('moDeductNotes').value,
+    RefundAmt: refund,
+    RefundPaid: 'No', RefundDate: '',
+    Notes: document.getElementById('moNotes').value
+  };
+
+  await apiPost('addMoveOut', payload, `&property=${r.Property}&room=${r.Room}&beds=${encodeURIComponent(r.Beds)}&residentId=${id}`);
+  r.Status = 'Moved Out';
+  showToast(`✅ ${r.Name} moved out. Refund: ${fmt(refund)}`);
+  document.getElementById('moveoutForm').reset();
+  document.getElementById('moDetails').style.display='none';
+  refreshData();
+}
+
+// ════════════════════════════════════════
+// INCOME
+// ════════════════════════════════════════
+async function submitIncome(e) {
+  e.preventDefault();
+  const date = document.getElementById('incDate').value;
+  const [y,m] = date.split('-');
+  const payload = {
+    IncomeID: 'INC_'+Date.now(),
+    Date: date, Month: parseInt(m), Year: parseInt(y),
+    IncomeType: document.getElementById('incType').value,
+    Amount: parseFloat(document.getElementById('incAmt').value),
+    Notes: document.getElementById('incNotes').value
+  };
+  await apiPost('addIncome', payload);
+  state.incomeOther.push(payload);
+  document.getElementById('incomeForm').reset();
+  setDefaultDates();
+  showToast('✅ Income saved!');
+  renderHome(); renderPnL();
+}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function switchScreen(name, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if(name==='dues') renderDues();
+  if(name==='pnl') renderPnL();
+  if(name==='property') { renderVacancy(); populateResidentDropdowns(); }
+}
+
+function switchPropTab(tab, el) {
+  document.querySelectorAll('#screen-property .tab-row .tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  ['vacancyTab','moveoutTab','incomeTab'].forEach(id => {
+    document.getElementById(id).style.display = id===tab+'Tab' ? 'block' : 'none';
+  });
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if(e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
