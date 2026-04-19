@@ -1,4 +1,4 @@
-<index.html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -48,6 +48,42 @@ body {
 }
 
 h1,h2,h3 { font-family: 'Syne', sans-serif; }
+h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+/* ── PIN LOCK ── */
+#pinLock {
+  position: fixed; inset: 0;
+  background: var(--navy);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+#pinLock.hidden { display: none; }
+.pin-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:32px; color:#fff; letter-spacing:-1px; margin-bottom:6px; }
+.pin-logo span { color:#60A5FA; }
+.pin-subtitle { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:48px; }
+.pin-dots { display:flex; gap:16px; margin-bottom:40px; }
+.pin-dot { width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,0.3); background:transparent; transition:all 0.15s; }
+.pin-dot.filled { background:#60A5FA; border-color:#60A5FA; }
+.pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; width:100%; max-width:280px; }
+.pin-key {
+  background: rgba(255,255,255,0.08);
+  border: none; border-radius: 16px;
+  color: #fff; font-family:'Syne',sans-serif;
+  font-size: 22px; font-weight: 700;
+  padding: 20px; cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pin-key:active { background:rgba(255,255,255,0.2); transform:scale(0.93); }
+.pin-key.del { font-size:18px; }
+.pin-key.empty { background:transparent; cursor:default; }
+.pin-error { color:#FCA5A5; font-size:13px; font-weight:600; margin-top:20px; opacity:0; transition:opacity 0.3s; }
+.pin-error.show { opacity:1; }
+
 
 /* ── TOP BAR ── */
 .topbar {
@@ -350,6 +386,34 @@ h1,h2,h3 { font-family: 'Syne', sans-serif; }
 </head>
 <body>
 
+<!-- PIN LOCK SCREEN -->
+<div id="pinLock">
+  <div class="pin-logo">Hospi<span>Biz</span></div>
+  <div class="pin-subtitle">Owner Dashboard</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key empty"></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-error" id="pinError">Incorrect PIN. Try again.</div>
+</div>
+
+
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-logo">Hospi<span>Biz</span></div>
@@ -635,10 +699,63 @@ const subCats = {
 // ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
+// ── PIN ──
+const CORRECT_PIN = '1234'; // Change this to your preferred PIN
+let pinEntry = '';
+const SESSION_KEY = 'hospibiz_auth';
+
+function checkPin() {
+  // If already authenticated in this session, skip PIN
+  if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    document.getElementById('pinLock').classList.add('hidden');
+    return;
+  }
+}
+
+function pinPress(digit) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += digit;
+  updatePinDots();
+  if (pinEntry.length === 4) {
+    setTimeout(verifyPin, 150);
+  }
+}
+
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots();
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('d' + i);
+    dot.classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function verifyPin() {
+  if (pinEntry === CORRECT_PIN) {
+    sessionStorage.setItem(SESSION_KEY, 'true');
+    document.getElementById('pinLock').classList.add('hidden');
+    loadAllData();
+  } else {
+    document.getElementById('pinError').classList.add('show');
+    setTimeout(() => {
+      pinEntry = '';
+      updatePinDots();
+      document.getElementById('pinError').classList.remove('show');
+    }, 1200);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setDateDisplay();
   setDefaultDates();
-  loadAllData();
+  checkPin();
+  // If already authed, load data. Otherwise wait for PIN.
+  if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    loadAllData();
+  }
 });
 
 function setDateDisplay() {
